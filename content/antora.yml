@@ -1,16 +1,16 @@
 ---
 name: modules
-title: Sample Module Title
+title: Bring the Power of AI and LLM to Containerized Java/Quarkus Apps
 version: master
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
-    lab_name: "I'm the lab_name var"
+    lab_name: "Red Hat Summit 2024 - Bring the Power of AI and LLM to Containerized Java/Quarkus Apps"
     release-version: master
     page-pagination: true
-    my_var: "foo"
+    my_var: "lb2195"
     guid: my-guid
     ssh_user: devops
     ssh_password: devops
