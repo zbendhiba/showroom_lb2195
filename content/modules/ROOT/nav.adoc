@@ -1,7 +1,4 @@
-* xref:module-01.adoc[1. RPM Native Container]
-** xref:module-01.adoc#repositories[Repositories]
-** xref:module-01.adoc#software[Software]
+* xref:index.adoc[1. Introduction]
+* xref:01-slot.adoc[2. Unveiling the Potential - Integrating Openshift AI with Quarkus]
 
-* xref:module-02.adoc[2. GitHub Sourced Container]
-** xref:module-02.adoc#prerequisites[Install Prerequisites]
-** xref:module-02.adoc#container[Enable Container]
+* xref:02-slot.adoc[3. Augmented Generation - Extending Hosted LLMs with Local Documents]

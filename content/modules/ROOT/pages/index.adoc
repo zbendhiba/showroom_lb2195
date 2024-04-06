@@ -3,12 +3,7 @@
 You are about to embark on a transformative journey as we explore the integration of AI into enterprise applications during this workshop. 
 With technology evolving at an unprecedented pace, this workshop aims to demystify the process of infusing Artificial Intelligence and Large Language Models (LLM) into Quarkus applications.
 
-<figure markdown>
-![Quarkus Langchain4J](./assets/overall.jpg)
-<figcaption>Overall overview of the workshop</figcaption>
-</figure>
-
-
+image::overall.jpg[caption="Overall overview of the workshop"]
 
 ## Once upon a time, Quarkus
 
@@ -48,39 +43,43 @@ There are numerous challenges, including:
 In this workshop, you will learn how to integrate AI into a Quarkus application.
 We are going to use https://github.com/quarkiverse/quarkus-langchain4j[Quarkus Langchain4J], a Quarkus extension that provides a unified API to interact with multiple AI models (based on https://github.com/langchain4j/langchain4j[langchain4j])
 
-<figure markdown>
-![Quarkus LLM Integration](./assets/ai-models.jpg)
-  <figcaption>Integrating multiple LLMs models</figcaption>
-</figure>
+image::ai-models.jpg[caption="Integrating multiple LLMs models"]
 
-???+ note
+[NOTE]
+====
+    The output states that the software has already been checked out. 
+====
 
+[NOTE]
+====
     This workshop is not about teaching you how to use AI. 
     Instead, it's about how to integrate AI into a Quarkus application.
+====
 
-???+ note
+[NOTE]
+====
 
     To learn more about Quarkus and LLM integration, you can refer to the https://quarkus.io/blog/quarkus-meets-langchain4j/[*Quarkus meets LangChain4j* article].
+====
 
 ## What are you going to learn?
 
 This workshop is divided into four parts.
 
-* **Slot 1: Unveiling the Potential - Integrating OpenAI with Quarkus**
+* **Slot 1: Unveiling the Potential - Integrating Openshift AI with Quarkus**
 
-  - Experience the hype: Learn to integrate OpenAI into a Quarkus application seamlessly.
+  - Experience the hype: Learn to integrate an LLM into a Quarkus application seamlessly.
   - Designing Interactions: Explore strategies for crafting meaningful interactions with large language models.
+  - Harness the power of OpenShift AI and its MLOps capabilities: Learn how it facilitates the training and hosting of custom AI models.
+  - Practical Integration: Witness the integration of a custom model into a Quarkus application to complete the end-to-end narrative.
   - AI Empowerment: Discover tools and techniques for providing robust control over AI within your application.
+
 
 * **Slot 2: Augmented Generation - Extending Hosted LLMs with Local Documents**
 
   - Shift gears: Explore another LLM and extend its capabilities using local documents.
   - Retrieval Augmented Generation: Delve into one of the core patterns in AI usage, understanding the synergy between your data and LLM interactions.
 
-* **Slots 3 & 4: OpenShift AI - Training and Hosting Your Own Model**
-
-  - Harness the power of OpenShift AI and its MLOps capabilities: Learn how it facilitates the training and hosting of custom AI models.
-  - Practical Integration: Witness the integration of a custom model into a Quarkus application to complete the end-to-end narrative.
 
 ## Prerequisites
 

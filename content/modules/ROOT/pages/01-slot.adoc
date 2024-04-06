@@ -1,6 +1,6 @@
-# Slot 1: Unveiling the Potential - Integrating OpenAI with Quarkus
+# Unveiling the Potential - Integrating Openshift AI with Quarkus
 
-In this first slot, we explore the potential of large language models like GPT-3/GPT-4 and how they integrate into Quarkus applications. 
+In this first slot, we explore the potential of large language models like Mistral and how they integrate into Quarkus applications. 
 We walk through the process of integration, discussing the benefits and challenges of incorporating large language models into applications and explaining how Quarkus integration handles these challenges.
 
 ## Interacting with an LLM
@@ -11,33 +11,66 @@ However, you do not interact with them directly, you use a _chat model_.
 It follows a conversational pattern: you send a prompt, and the model responds with a message.
 The conversation is a sequence of messages and responses.
 
-<figure markdown>
-![Conversation with an LLM](../assets/conversation.jpg)
-<figcaption>Conversation with an LLM</figcaption>
-</figure>
+image::conversation.jpg[caption="Conversation with an LLM"]
+
 
 The LLM answers to the user request and can use the context of the conversation to provide a more accurate response (_.i.e._ the set of already exchanged messages from the conversation).
 
 When integrating an LLM into an application, you need to define the prompt and the expected response.
 The prompt is a message sent to the LLM, and the response is the message returned by the LLM.
 
-In this slot, we will see how you can easily model your interaction with the LLM with Quarkus and the Quarkus LangChain4J extension.
-We are going to use [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) as an example, but Quarkus can interact with many other LLMs.
+In this workshop, we will leverage how you can easily model your interaction with the LLM with Quarkus and the Quarkus LangChain4J extension.
 
 ## The triage application
 
-In this slot, we look at the code in the `triage-application` directory. 
+In this slot, we look at the code in the `triage-application-openshift-ai` directory. 
 This application receives user reviews and classifies them as positive or negative.
-It's a simple application but serves as a good example of integrating OpenAI with Quarkus.
+It's a simple application but serves as a good example of integrating Openshift AI with Quarkus.
+
+[NOTE]
+====
+    Depending on the model that have been deployed, the functionality of the triage application will be different.
+    The application located in the `triage-application-openshift-ai` is using a simplistic LLM (`flant5s-l`) and thus is adapted accordingly.
+====
+
 In a terminal, navigate to the `triage-application` directory and run the following command:
 
-```shell
-$ export AZURE_OPENAI_API_KEY=<your OpenAI API key>
-$ ./mvnw quarkus:dev
+## Using the OpenShift AI Quarkus integration
+
+To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application-openshift-ai`.
+This dependency is tailored for OpenShift AI and facilitates interaction with the model serving platform and its API:
+
+```xml
+<dependency>
+    <groupId>io.quarkiverse.langchain4j</groupId>
+    <artifactId>quarkus-langchain4j-openshift-ai</artifactId>
+    <version>${quarkus-langchain.version}</version>
+</dependency>
+```
+[NOTE]
+====
+    This dependency is specific to OpenShift AI. Quarkus can interact with many other LLMs.
+====
+
+It will allow Quarkus LangChain4J to interact with the model serving platform and its API.
+
+Additionally, we need to specify the model serving platform's URL and the model ID in the `application.properties` file:
+
+```properties
+quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
+quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
 ```
 
-???+ info
-    The API key is used to access the Azure OpenAI service. Make sure you got it following the instructions in [the appendix](../appendixes/accessing-azureai.md).
+For now, we are going to use the [Flan T5 model](https://paperswithcode.com/method/flan-t5) model.
+This model is not as powerful as GPT 3.5.
+Thus, the application is sightly simplified.
+
+[NOTE]
+====
+    The `quarkus.tls.trust-all=true` property is included to bypass certificate validation, as the API uses HTTPS with self-signed certificates. This should not be done in production.
+====
+
+## Try it out
 
 This starts the application in development mode. Open a browser and navigate to [http://localhost:8080](http://localhost:8080) to see the application's frontend.
 The frontend is a simple form allowing you to submit a review. Upon submission, the application classifies it as positive or negative and displays the result.
@@ -208,6 +241,31 @@ It uses [langchain4j](https://github.com/langchain4j/langchain4j) to manage that
 !!! note
     If you prefer a pure programmatic approach, you can use the langchain4j API directly in Quarkus. 
     However, you will lose some of the benefits we are going to see in the following sections.
+
+## Using another model
+
+One of the great benefits of OpenShift AI is that it allows you to deploy multiple model.
+So, we can switch to the [Mistral model](https://docs.mistral.ai/).
+
+Open the `application.properties` file to comment the Flan T5 configuration, and uncomment the Mistral one:
+
+```properties
+
+# Flan Small
+# quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
+# quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
+
+# Mistral 7B
+quarkus.langchain4j.openshift-ai.base-url=https://mistral7b-xl-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
+quarkus.langchain4j.openshift-ai.chat-model.model-id=mistral7b-xl
+quarkus.langchain4j.openshift-ai.timeout=60s
+
+## The deployed model is using a self-signed certificate, so we need to trust it.
+quarkus.tls.trust-all=true
+```
+
+Then, the next time you submit a review, it will call the Mistral model.
+Note that it is a much more powerful model, so the response time is longer.
 
 ## Fault-Tolerance and Resilience
 In this section, we will explore how Quarkus can help you build fault-tolerant and resilient AI services. 
