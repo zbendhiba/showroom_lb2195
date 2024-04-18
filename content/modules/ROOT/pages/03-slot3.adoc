@@ -14,6 +14,8 @@ In this demonstration, we'll employ OpenShift AI using a https://github.com/rh-a
 * A composite https://caikit.github.io/website/[Caikit+TGIS] runtime
 * OpenVINO Model Server
 
+image::openshift-ai-model-serving.png[caption="OpenShift AI Model Serving"]
+
 We are reusing an existing model.
 
 == Accessing the Deployed Model
