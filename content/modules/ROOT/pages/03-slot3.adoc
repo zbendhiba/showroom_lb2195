@@ -9,6 +9,7 @@ In the subsequent slot, we will leverage this deployed model to rework the funct
 OpenShift AI provides a streamlined solution for deploying and managing models on the OpenShift platform, offering robust model-serving capabilities.
 
 In this demonstration, we'll employ OpenShift AI using a https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/serving-runtimes/vllm_runtime/vllm-runtime.yaml[custom model runtime for vLLM], developed by the Red Hat AI BU and which will most likely make it to the the product very soon. At the time of writing this lab, OpenShift AI 2.8 included out of the box https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html/serving_models/serving-large-models_serving-large-models#about-the-single-model-serving-platform_serving-large-models[3 other pre-installed runtimes for KServe for serving LLMs]:
+
 * A standalone TGIS runtime
 * A composite https://caikit.github.io/website/[Caikit+TGIS] runtime
 * OpenVINO Model Server

@@ -1,4 +1,4 @@
-# Slot 4: Utilizing a model deployed on OpenShift AI
+= Slot 4: Utilizing a model deployed on OpenShift AI
 
 Welcome to the final slot of the workshop!
 In this session, we'll leverage the model deployed in the previous slot to customize the triage application introduced in the first slot.
@@ -9,40 +9,44 @@ The application located in the `triage-application-openshift-ai` is using a simp
 ???+ abstract "OpenShift AI with the Caikit+TGIS runtime"
     Strictly speaking, it's not just OpenShift AI but OpenShift AI with the Caikit+TGIS runtime that powers our model deployment.
 
-## Using the OpenShift AI Quarkus integration
+== Using the OpenShift AI Quarkus integration
 
 To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application-openshift-ai`.
 This dependency is tailored for OpenShift AI and facilitates interaction with the model serving platform and its API:
 
-```xml
+[,xml]
+----
 <dependency>
     <groupId>io.quarkiverse.langchain4j</groupId>
     <artifactId>quarkus-langchain4j-openshift-ai</artifactId>
     <version>${quarkus-langchain.version}</version>
 </dependency>
-```
+----
+
 This dependency is equivalent to the ones we have used in the previous slots, but it is specific to OpenShift AI.
 It will allow Quarkus LangChain4J to interact with the model serving platform and its API.
 
 Additionally, we need to specify the model serving platform's URL and the model ID in the `application.properties` file:
 
-```properties
+[,properties]
+----
 quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
 quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
-```
+----
 
-For now, we are going to use the [Flan T5 model](https://paperswithcode.com/method/flan-t5) model.
+For now, we are going to use the https://paperswithcode.com/method/flan-t5[Flan T5 model] model.
 This model is not as powerful as GPT 3.5.
 Thus, the application is sightly simplified.
 
 ???+ note
     The `quarkus.tls.trust-all=true` property is included to bypass certificate validation, as the API uses HTTPS with self-signed certificates. This should not be done in production.
 
-## The triage service
+== The triage service
 
 The `TriageService.java` interface is the cornerstone of the application:
 
-```java
+[,java]
+----
 package io.quarkiverse.langchain4j.workshop.triage;
 
 import dev.langchain4j.service.UserMessage;
@@ -73,38 +77,39 @@ public interface TriageService {
     }
 
 }
-
-```
+----
 
 As you can see, it's a simplified version of the one used in the first slot:
 
-1. We use only a `@UserMessage` and no `@SystemMessage`, as the model runtime do not allow multiple messages for now.
-2. We do not ask the LLM to generate JSON, but just a `positive` or `negative` string.
-3. We do not ask the LLM to generate a message for the user
+. We use only a `@UserMessage` and no `@SystemMessage`, as the model runtime do not allow multiple messages for now.
+. We do not ask the LLM to generate JSON, but just a `positive` or `negative` string.
+. We do not ask the LLM to generate a message for the user
 
 Because, all the attendees are using the same endpoint, and we have limited resources, we keep the `@RateLimit` annotation to avoid overloading the model serving platform.
 
-## Running the application
+== Running the application
 
 To run the application, you need to use the following command form the `triage-application-openshift-ai` directory:
 
-```shell
+[,shell]
+----
 mvn quarkus:dev
-```
+----
 
 Then, open the browser at the following URL: http://localhost:8080, and start posting reviews.
 Each time to click on the _submit_ button, it sends the review to the application, which invokes the computes the message and invokes
 the LLM model.
 Once received, the response is passed to the browser and displayed.
 
-## Using another model
+== Using another model
 
 One of the great benefits of OpenShift AI is that it allows you to deploy multiple model.
-So, we can switch to the [Mistral model](https://docs.mistral.ai/).
+So, we can switch to the https://docs.mistral.ai/[Mistral model].
 
 Open the `application.properties` file to comment the Flan T5 configuration, and uncomment the Mistral one:
 
-```properties
+[,properties]
+----
 
 # Flan Small
 # quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
@@ -117,12 +122,12 @@ quarkus.langchain4j.openshift-ai.timeout=60s
 
 ## The deployed model is using a self-signed certificate, so we need to trust it.
 quarkus.tls.trust-all=true
-```
+----
 
 Then, the next time you submit a review, it will call the Mistral model.
 Note that it is a much more powerful model, so the response time is longer.
 
-## Summary
+== Summary
 
 This concludes this slot and the workshop.
 In this slot we have seen how to use a model deployed on OpenShift AI with Quarkus LangChain4J.
