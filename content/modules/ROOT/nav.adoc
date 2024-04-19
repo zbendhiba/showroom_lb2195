@@ -2,3 +2,4 @@
 * xref:01-slot.adoc[2. Unveiling the Potential - Integrating Openshift AI with Quarkus]
 * xref:02-slot.adoc[3. Augmented Generation - Extending Hosted LLMs with Local Documents]
 * xref:03-slot.adoc[4. Deploying an LLM using OpenShift AI]
+* xref:04-slot.adoc[5. Utilizing a model deployed on OpenShift AI]

@@ -9,7 +9,7 @@ The application located in the `triage-application-openshift-ai` is using a simp
 ???+ abstract "OpenShift AI with the Caikit+TGIS runtime"
     Strictly speaking, it's not just OpenShift AI but OpenShift AI with the Caikit+TGIS runtime that powers our model deployment.
 
-== Using the OpenShift AI Quarkus integration
+== Using the OpenShift AI - Quarkus Integration
 
 To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application-openshift-ai`.
 This dependency is tailored for OpenShift AI and facilitates interaction with the model serving platform and its API:
@@ -28,10 +28,10 @@ It will allow Quarkus LangChain4J to interact with the model serving platform an
 
 Additionally, we need to specify the model serving platform's URL and the model ID in the `application.properties` file:
 
-[,properties]
+[,properties,subs="attributes"]
 ----
-quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
-quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
+quarkus.langchain4j.openshift-ai.base-url=https://flant5s-hftgi-llms.{openshift_cluster_ingress_domain}:443/api
+quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-hftgi
 ----
 
 For now, we are going to use the https://paperswithcode.com/method/flan-t5[Flan T5 model] model.
