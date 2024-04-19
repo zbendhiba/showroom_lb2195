@@ -1,0 +1,49 @@
+= Slot 3: Deploying an LLM using OpenShift AI
+
+Welcome to the third slot, where we delve into the process of deploying a Large Language Model (LLM) using https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai[OpenShift AI], Red Hat's MLOps platform running on top of OpenShift.
+
+In the subsequent slot, we will leverage this deployed model to rework the functionality of the triage application introduced in the first slot.
+
+== Deploying a Model on OpenShift AI
+
+OpenShift AI provides a streamlined solution for deploying and managing models on the OpenShift platform, offering robust model-serving capabilities.
+
+In this demonstration, we'll employ OpenShift AI using a https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/serving-runtimes/vllm_runtime/vllm-runtime.yaml[custom model runtime for vLLM], developed by the Red Hat AI BU and which will most likely make it to the the product very soon. At the time of writing this lab, OpenShift AI 2.8 included out of the box https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.8/html/serving_models/serving-large-models_serving-large-models#about-the-single-model-serving-platform_serving-large-models[3 other pre-installed runtimes for KServe for serving LLMs]:
+
+* A standalone TGIS runtime
+* A composite https://caikit.github.io/website/[Caikit+TGIS] runtime
+* OpenVINO Model Server
+
+image::openshift-ai-model-serving.png[caption="OpenShift AI Model Serving"]
+
+We are reusing an existing model.
+
+== Accessing the Deployed Model
+
+Once successfully deployed, your model becomes accessible through a REST API. OpenShift AI will provide you with the URL, and depending on the desired action and the model's capabilities, append one of the following paths to the end of the inference endpoint URL:
+
+----
+:443/api/v1/task/server-streaming-text-generation
+:443/api/v1/task/text-generation
+----
+
+For the Quarkus integration, the latter endpoint is utilized.
+
+As depicted by these paths, the model serving platform employs the HTTPS port of your OpenShift router (typically port 443) to handle external API requests.
+
+Utilize these endpoints for making API requests to your deployed model.
+A practical example using the curl command is illustrated below:
+
+[,shell]
+----
+$ curl --json '{
+"model_id": "<model_name>",
+"inputs": "<query_text>"
+}' https://<inference_endpoint_url>:443/api/v1/task/text-generation
+----
+
+== Summary
+
+This concludes our exploration of the third slot in the workshop.
+We've covered the steps involved in serving and invoking an LLM hosted on OpenShift AI.
+In the upcoming and final slot, we will customize the triage application introduced in the first slot to incorporate the capabilities of the recently deployed Language Model.
