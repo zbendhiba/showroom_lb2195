@@ -1,4 +1,4 @@
-# Slot 2: Augmented Generation - Extending Hosted LLMs with Local Documents
+# Slot 3: Augmented Generation - Extending Hosted LLMs with Local Documents
 
 In this section, we will:
 
@@ -152,6 +152,13 @@ This is required when used from a WebSocket.
 It contains a single method, `chat`, which is annotated with `@SystemMessage` and `@UserMessage`.
 The system message is wrapped into `<<SYS>>` and `<<\SYS>>`.
 This is a requirement from the LLAMA2 model.
+
+
+[NOTE]
+====
+The model authors using a seperate SystemMessage, so we can use the `@SystemMessage` annotation to integrate with this LLM
+====
+
 
 The user message is a template that will be used to generate the response.
 The `+++` and `+++` are used to delimit the message from the user.
@@ -428,35 +435,59 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 
 @ApplicationScoped
-public class DocumentRetriever implements Retriever<TextSegment> {
+public class DocumentRetriever implements Supplier<RetrievalAugmentor> {
 
-    private final EmbeddingStoreRetriever retriever;
+    private final RetrievalAugmentor augmentor;
 
     DocumentRetriever(RedisEmbeddingStore store, EmbeddingModel model) {
-        retriever = EmbeddingStoreRetriever.from(store, model, 5);
+        EmbeddingStoreContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
+            .embeddingModel(model)
+            .embeddingStore(store)
+            .maxResults(3)
+            .build();
+
+        augmentor = DefaultRetrievalAugmentor
+            .builder()
+            .contentRetriever(contentRetriever)
+            .build();
     }
 
     @Override
-    public List<TextSegment> findRelevant(String s) {
-        return retriever.findRelevant(s);
+    public RetrievalAugmentor get() {
+        return augmentor;
     }
 }
 ----
 
-This class is a bean implementing the `Retriever` interface.
+Once documents are ingested, they can augment the LLM’s capabilities This class is a bean creating a `RetrievalAugmentor`.
 Because we have only one `Retriever` bean, we do not have to configure anything.
 When you have multiple ones, you can configure the one to use with the `retriever` attribute of the `@RegisterAiService` annotation.
 
 The retriever is configured with the vector database and the embedding model.
-Then, when the user sends a request, the `findRelevant` method is called to find all the semantically relevant _chunks of data_.
+Then, when the user sends a request, the `get` method is called to find all the semantically relevant _chunks of data_.
 The chunks are then attached to the user message and sent to the LLM.
 
 To find the relevant chunks, the retriever computes the vector representation of the user query and asks the database to provide the most relevant chunks.
 
 You do not have to do anything about the attachment of the chunks to the user message; it is done automatically by the LLM extension.
 
+### Integrating with Hosted LLMs 
+In order to execute the same code with the LLM hosted in Openshift AI, we can execute the same application tailored for Openshift AI.
+Navigate to the `chat-application-openshift-ai` directory to see the full source code of the application.
+
+Make sure you configure the URL of the LLM used in the triage application and start the application in dev mode.
+
+Check the `pm.xml`, `application.properties` and the `ChatService.java` classes have been updated. Notice:
+- The use the OpenAI quarkus dependency instead of Ollama quarkus dependency
+- The ChatService uses only `@UserMessage`dependency as the Mistral model doesn't allow using the `@SystemMessage`
+
+[NOTE]
+====
+The vLLM models doesn't support for now exposing an Embedding Model in the serving API. Our workshop uses a local EmbeddingModel. This may evolve in the future.
+====
+
 ## Summary
 
-That concludes the second slot of the workshop.
-We have seen how to use a local (or hosted) LLM (LLAMA2) to build a chat bot.
+That concludes the third slot of the workshop and the workshop.
+We have seen how to use a local LLM (LLAMA2) to build a chat bot. We've seen how we can customize the same app to use a hosted LLM deployed on Openshift AI.
 We have also looked into the ingestion and RAG patterns to extend the LLM with local documents.

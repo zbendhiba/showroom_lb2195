@@ -1,4 +1,4 @@
-# Unveiling the Potential - Integrating Openshift AI with Quarkus
+#Slot 2 : Unveiling the Potential - Integrating Openshift AI with Quarkus
 
 In this first slot, we explore the potential of large language models like Mistral and how they integrate into Quarkus applications. 
 We walk through the process of integration, discussing the benefits and challenges of incorporating large language models into applications and explaining how Quarkus integration handles these challenges.
@@ -12,7 +12,6 @@ It follows a conversational pattern: you send a prompt, and the model responds w
 The conversation is a sequence of messages and responses.
 
 image::conversation.jpg[caption="Conversation with an LLM"]
-
 
 The LLM answers to the user request and can use the context of the conversation to provide a more accurate response (_.i.e._ the set of already exchanged messages from the conversation).
 
@@ -130,13 +129,19 @@ It encapsulates the complexity of the AI service, allowing you to focus on the b
 The `@RegisterAiService` annotation registers the service. 
 Quarkus uses this annotation to generate the client code (at build time) and inject the client into the application.
 
+
+The `@UserMessage` annotation defines the messages (prompt) sent to the AI service. 
+`@UserMessage` annotation defines the messages (prompt) sent to the AI service. 
+The system message is wrapped into `<<SYS>>` and `<<\SYS>>`. It contains the scope, context, and goal of the AI service.
+
+[NOTE]
+====
 The `@SystemMessage` and `@UserMessage` annotations define the messages (prompt) sent to the AI service. 
 `@SystemMessage` defines the scope, context, and goal of the AI service. 
 `@UserMessage` defines the message sent to the AI service.
 
-[NOTE]
-====
-Mistral AI doesn't include the notion of SystemMessage, the triage application is adapted to the Mistral model. The system message is wrapped into `<<SYS>>` and `<<\SYS>>` and included directly to the `@UserMessage`.
+Mistral AI doesn't support the notion of SystemMessage, our prompt is adapted to the Mistral model.
+If you are using the Quarkus OpenAI extension or a model deployed with vLLM that supports the notion of SystemMessage you would use the `@SystemMessage` to define the context.
 ====
 
 Note that the triage method receives a String as a parameter (the user review). 
@@ -399,7 +404,7 @@ quarkus.tls.trust-all=true
 ----
 
 ## Summary
-This concludes the first slot. 
+This concludes the second slot. 
 In this slot, we have seen how Quarkus can help you integrate a model deployed with Openshift AI with your application.
 Quarkus provides a declarative approach to integrate LLMs. 
 The interactions are modeled in a Java interface containing methods annotated with `@SystemMessage` and `@UserMessage`. 
