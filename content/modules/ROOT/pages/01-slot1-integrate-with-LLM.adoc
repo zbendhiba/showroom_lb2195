@@ -235,10 +235,11 @@ The last three properties configure the access to the vLLM service.
 ====
 If you want to visualise the request that is sent to the model and its response, you cam increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
 
-    ```properties
-    quarkus.langchain4j.openai.log-requests=true
-    quarkus.langchain4j.openai.log-responses=true
-    ```
+[source, properties]
+----
+quarkus.langchain4j.openai.log-requests=true
+quarkus.langchain4j.openai.log-responses=true
+----
 ====
 
 ## Under the hood
@@ -356,9 +357,10 @@ The Quarkus tracing support is based on https://opentelemetry.io/[OpenTelemetry]
 Before seeing traces, we must start the OpenTelemetry collector and the Jaeger UI (to visualize the traces). 
 In a new terminal, navigate to the `triage-application` directory and run the following command:
 
-```shell
+[source, bash]
+----
 $ docker compose -f observability-stack.yml up
-```
+----
 
 With the observability stack up, we can start submitting reviews for triage. 
 Then, open a browser and navigate to http://localhost:16686[http://localhost:16686] to see the traces:
