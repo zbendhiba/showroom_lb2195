@@ -47,19 +47,13 @@ image::ai-models.jpg[caption="Integrating multiple LLMs models"]
 
 [NOTE]
 ====
-    The output states that the software has already been checked out. 
+  This workshop is not about teaching you how to use AI. 
+  Instead, it's about how to integrate AI into a Quarkus application.
 ====
 
 [NOTE]
 ====
-    This workshop is not about teaching you how to use AI. 
-    Instead, it's about how to integrate AI into a Quarkus application.
-====
-
-[NOTE]
-====
-
-    To learn more about Quarkus and LLM integration, you can refer to the https://quarkus.io/blog/quarkus-meets-langchain4j/[*Quarkus meets LangChain4j* article].
+To learn more about Quarkus and LLM integration, you can refer to the https://quarkus.io/blog/quarkus-meets-langchain4j[Quarkus meets LangChain4j article].
 ====
 
 ## What are you going to learn?
