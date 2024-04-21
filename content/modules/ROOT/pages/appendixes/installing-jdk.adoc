@@ -1,7 +1,7 @@
 # Installing Java {jdk-version}
 
-Essential for the development and execution of this workshop is the _Java Development Kit_ (JDK).[^1]
-The JDK includes several tools such as a compiler (`javac`), a virtual machine, a documentation generator (`JavaDoc`), monitoring tools (Visual VM), and so on[^2]. The code in this workshop uses JDK {jdk-version}.
+Essential for the development and execution of this workshop is the _Java Development Kit_ (JDK).
+The JDK includes several tools such as a compiler (`javac`), a virtual machine, a documentation generator (`JavaDoc`), monitoring tools (Visual VM), and so on. The code in this workshop uses JDK {jdk-version}.
 
 ## Installing the JDK
 
