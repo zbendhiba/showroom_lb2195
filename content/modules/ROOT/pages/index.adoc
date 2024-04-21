@@ -85,7 +85,7 @@ Firstly, ensure you have a 64-bit computer with admin rights (for installing nec
 This workshop will use the following software, tools, frameworks that you need to install and understand:
 
 * Any IDE you feel comfortable with (e.g., Intellij IDEA, Eclipse IDE, VS Code).
-* JDK {{ attributes.versions.java}}.
+* JDK {versions.java}.
 * Docker or Podman (see instructions in link:appendixes/installing-docker[the appendix]).
 * cURL (should be installed; if not, check link:appendixes/installing-curl[the appendix]).
 We will also use Maven {{ attributes.versions.maven }}, but there's no need to install it. The workshop scaffolding includes a maven wrapper, `mvnw`.
