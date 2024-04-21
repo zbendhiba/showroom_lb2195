@@ -23,64 +23,65 @@ In this workshop, we will leverage how you can easily model your interaction wit
 
 ## The triage application
 
-In this slot, we look at the code in the `triage-application-openshift-ai` directory. 
+In this slot, we look at the code in the `triage-application` directory. 
 This application receives user reviews and classifies them as positive or negative.
 It's a simple application but serves as a good example of integrating Openshift AI with Quarkus.
 
 [NOTE]
 ====
-    Depending on the model that have been deployed, the functionality of the triage application will be different.
-    The application located in the `triage-application-openshift-ai` is using a simplistic LLM (`flant5s-l`) and thus is adapted accordingly.
+Depending on the model that have been deployed, the functionality of the triage application will be different.
+The triage has been tailored for Mistral LLM functionalities.
 ====
 
-In a terminal, navigate to the `triage-application` directory and run the following command:
+## Using the OpenAI Quarkus integration
 
-## Using the OpenShift AI Quarkus integration
+To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application`.
+Our model has been deployed with vLLMfoonote:[Deploying an LLM using Openshift AI[01-slot1-install-openshift-ai.adoc]]. It exposes an OpenAI API. We are using the Quarkus OpenAI dependency to interact with the Mistral AI.
 
-To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application-openshift-ai`.
-This dependency is tailored for OpenShift AI and facilitates interaction with the model serving platform and its API:
-
-```xml
+[source, xml]
+----
 <dependency>
     <groupId>io.quarkiverse.langchain4j</groupId>
-    <artifactId>quarkus-langchain4j-openshift-ai</artifactId>
+    <artifactId>quarkus-langchain4j-openai</artifactId>
     <version>${quarkus-langchain.version}</version>
 </dependency>
-```
+----
+
 [NOTE]
 ====
-    This dependency is specific to OpenShift AI. Quarkus can interact with many other LLMs.
+This dependency is specific to OpenAI and models depeloyed with vLLM. Quarkus can interact with many other LLMs.
 ====
 
 It will allow Quarkus LangChain4J to interact with the model serving platform and its API.
 
-Additionally, we need to specify the model serving platform's URL and the model ID in the `application.properties` file:
-
-```properties
-quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
-quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
-```
-
-For now, we are going to use the [Flan T5 model](https://paperswithcode.com/method/flan-t5) model.
-This model is not as powerful as GPT 3.5.
-Thus, the application is sightly simplified.
-
 [NOTE]
 ====
-    The `quarkus.tls.trust-all=true` property is included to bypass certificate validation, as the API uses HTTPS with self-signed certificates. This should not be done in production.
+The `quarkus.tls.trust-all=true` property is included to bypass certificate validation, as the API uses HTTPS with self-signed certificates. This should not be done in production.
 ====
 
 ## Try it out
 
-This starts the application in development mode. Open a browser and navigate to [http://localhost:8080](http://localhost:8080) to see the application's frontend.
+[source, xml]
+----
+$ export MISTRAL_AI_BASE_URL=<your Mistral AI Base URL deployed on Openshift AI>
+$ ./mvnw quarkus:dev
+----
+
+This starts the application in development mode. Open a browser and navigate to http://localhost:8080[http://localhost:8080] to see the application's frontend.
 The frontend is a simple form allowing you to submit a review. Upon submission, the application classifies it as positive or negative and displays the result.
+
+[NOTE]
+====
+The `MISTRAL_AI_BASE_URL` is the URL of the API exposed to integrate with the Mistral model on Openshift AI.
+====
 
 ## Anatomy of the application
 
 Let's delve into the code.
 Firstly, let's explore the TriageService interface:
 
-```java
+[source, java]
+----
 package io.quarkiverse.langchain4j.workshop.triage;
 
 import dev.langchain4j.service.SystemMessage;
@@ -90,11 +91,12 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 @RegisterAiService
 public interface TriageService {
 
-    @SystemMessage("""
+     @UserMessage("""
+            <s>[INST] <<SYS>>
             You are working for a bank. You are an AI processing reviews about financial products. You need to triage the reviews into positive and negative ones.
             You will always answer with a JSON document, and only this JSON document.
-            """)
-    @UserMessage("""
+            <</SYS>>
+
             Your task is to process the review delimited by ---.
             Apply a sentiment analysis to the passed review to determine if it is positive or negative.
             The review can be in any language. So, you will need to identify the language.
@@ -111,11 +113,12 @@ public interface TriageService {
             ---
             {review}
             ---
+            [/INST]
             """)
     TriagedReview triage(String review);
 
 }
-```
+----
 
 This interface defines the contract between the application and the AI service. 
 It contains the prompt that will be sent to the AI service and the expected response.
@@ -131,16 +134,24 @@ The `@SystemMessage` and `@UserMessage` annotations define the messages (prompt)
 `@SystemMessage` defines the scope, context, and goal of the AI service. 
 `@UserMessage` defines the message sent to the AI service.
 
+[NOTE]
+====
+Mistral AI doesn't include the notion of SystemMessage, the triage application is adapted to the Mistral model. The system message is wrapped into `<<SYS>>` and `<<\SYS>>` and included directly to the `@UserMessage`.
+====
+
 Note that the triage method receives a String as a parameter (the user review). 
 The prompt can reference the parameter using the \{review} placeholder.
 
-???+ tip 
-    Under the hood, Quarkus uses `qute` as a template engine.
+[.tip]
+====
+Under the hood, Quarkus uses `qute` as a template engine.
+====
 
 The prompt explains to the AI service what it needs to do and what response it should return. 
 Thus, the triage method returns a `TriageReview`:
 
-```java
+[source, java]
+----
 package io.quarkiverse.langchain4j.workshop.triage;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -152,13 +163,14 @@ public record TriagedReview(Evaluation evaluation, String message) {
     }
 
 }
-```
+----
 
 The `TriageReview` is a simple record that contains the evaluation (positive or negative) and the message to send to the user.
 
 Now, let's see how we can use your AI service:
 
-```java
+[source, java]
+----
 package io.quarkiverse.langchain4j.workshop.triage;
 
 import jakarta.inject.Inject;
@@ -180,7 +192,7 @@ public class ReviewResource {
     }
 
 }
-```
+----
 
 
 The `ReviewResource` is a simple JAX-RS resource that receives a `Review` and delegates the triage to the `TriageService`. 
@@ -190,100 +202,71 @@ So, we do not leak any details about the AI service.
 
 ## Configuring the AI service
 
-In the `application.properties` file, you will see the following (see instructions on how to set the `azure-openai` properties in [the appendix](./appendixes/accessing-azureai.md)):
+In the `application.properties` file, you will see the following:
 
-```properties
-quarkus.langchain4j.azure-openai.chat-model.temperature=0.5
-quarkus.langchain4j.azure-openai.timeout=60s
+[source, properties]
+----
+quarkus.langchain4j.openai.timeout=60s
 
-quarkus.langchain4j.azure-openai.api-key=${AZURE_OPENAI_API_KEY}
-quarkus.langchain4j.azure-openai.deployment-id=${AI_DEPLOYMENT}
-quarkus.langchain4j.azure-openai.resource-name=${AI_SERVICE}
-```
+#quarkus.langchain4j.openai.base-url=<Mistral-ai-base-url>
+quarkus.langchain4j.openai.api-key=<key>
+quarkus.langchain4j.openai.chat-model.model-name=<model_name>
+----
+
+[NOTE]
+====
+The model we deployed with vLLM for the workshop exposes an API that doesn't require an api-key to interact with. However the Quarkus API forces using a ke, so we are forced to set one.
+====
  
-The first property, _temperature_, is used to control the creative aspect of the AI service. 
-The higher the temperature, the more creative the AI service will be. 
-In our case, we want to limit the creativity to avoid unexpected results.
-
-The second property is used to configure the timeout. 
+The first property is used to configure the timeout. 
 LLM can be slow to answer. 
 60s is generally a good value. 
 However, feel free to adapt.
 
-The last three properties configure the access to the Azure OpenAI service.
+The last three properties configure the access to the vLLM service.
 
-???+ tip "Logging the request and response"
-    If you want to visualise the request that is sent to the model and its response, you cam increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
+[.tip]
+====
+If you want to visualise the request that is sent to the model and its response, you cam increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
 
     ```properties
     quarkus.langchain4j.openai.log-requests=true
     quarkus.langchain4j.openai.log-responses=true
     ```
-
-???+ info "Using plain OpenAI"
-    You can also use _plain_ OpenAI. You will need an [OpenAI API key](https://platform.openai.com/api-keys). Then, replace the content of the `application.properties` with:
-    
-    ```properties
-    quarkus.langchain4j.openai.api-key=${OPENAI_API_KEY}
-    quarkus.langchain4j.openai.chat-model.temperature=0.5
-    quarkus.langchain4j.openai.timeout=60s
-    ```
-
-    Finally, in the `pom.xml`, replace `quarkus-langchain4j-azure-openai` with `quarkus-langchain4j-openai`
+====
 
 ## Under the hood
 As we have seen, Quarkus integrates LLM using a declarative approach. 
 It models the AI service using an interface and annotations. 
 
 At _build time_, Quarkus generates the actual client that connects and invokes the remote model. 
-It uses [langchain4j](https://github.com/langchain4j/langchain4j) to manage that interaction.
+It uses https://github.com/langchain4j/langchain4j[langchain4j] to manage that interaction.
 
-!!! note
-    If you prefer a pure programmatic approach, you can use the langchain4j API directly in Quarkus. 
-    However, you will lose some of the benefits we are going to see in the following sections.
-
-## Using another model
-
-One of the great benefits of OpenShift AI is that it allows you to deploy multiple model.
-So, we can switch to the [Mistral model](https://docs.mistral.ai/).
-
-Open the `application.properties` file to comment the Flan T5 configuration, and uncomment the Mistral one:
-
-```properties
-
-# Flan Small
-# quarkus.langchain4j.openshift-ai.base-url=https://flant5s-l-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
-# quarkus.langchain4j.openshift-ai.chat-model.model-id=flant5s-l
-
-# Mistral 7B
-quarkus.langchain4j.openshift-ai.base-url=https://mistral7b-xl-predictor-ch2023.apps.cluster-hj2qv.dynamic.redhatworkshops.io:443/api
-quarkus.langchain4j.openshift-ai.chat-model.model-id=mistral7b-xl
-quarkus.langchain4j.openshift-ai.timeout=60s
-
-## The deployed model is using a self-signed certificate, so we need to trust it.
-quarkus.tls.trust-all=true
-```
-
-Then, the next time you submit a review, it will call the Mistral model.
-Note that it is a much more powerful model, so the response time is longer.
+[NOTE]
+====
+If you prefer a pure programmatic approach, you can use the langchain4j API directly in Quarkus. 
+However, you will lose some of the benefits we are going to see in the following sections.
+====
 
 ## Fault-Tolerance and Resilience
 In this section, we will explore how Quarkus can help you build fault-tolerant and resilient AI services. 
 First, check that the `pom.xml` file located in the `triage-application` directory contains the following dependency:
 
-```xml
+[source, xml]
+----
 <dependency>
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
 </dependency>
-```
+----
 
 This Quarkus extension provides a set of annotations (as well as a programmatic API) to express the fault-tolerance and resilience requirements of your application. 
 Let's extend our AI service to make it more resilient.
 
 Open the `TriageService` interface and add (if not already present) the following annotation to the `triage` method:
 
-```java
+[source, java]
+----
 // Do not forget to add the following imports:
 // import org.eclipse.microprofile.faulttolerance.Fallback;
 // import org.eclipse.microprofile.faulttolerance.Retry;
@@ -292,7 +275,7 @@ Open the `TriageService` interface and add (if not already present) the followin
 @Fallback(fallbackMethod = "fallback")
 @RateLimit(value = 2, window = 10, windowUnit = ChronoUnit.SECONDS)
 TriagedReview triage(String review);
-```
+----
 
 The `@Retry` annotation is used to retry the invocation of the AI service in case of failure. 
 In this case, we will retry twice. 
@@ -306,23 +289,25 @@ When the limit is reached, the fallback method is called.
 
 Thus,  let's implement the `fallback` method:
 
-```java
+[source, java]
+----
 static TriagedReview fallback(String review) {
     return new TriagedReview(Evaluation.NEGATIVE, 
         "Sorry, we are unable to process your review at the moment. " +
         "Please try again later.");
 }
-```
+----
 
 The `fallback` method returns a negative evaluation and a message explaining that the service is unavailable. 
 The Quarkus fault-tolerance support also provides timeout, circuit breaker and bulkhead. 
 
-Check the [Quarkus documentation](https://quarkus.io/guides/smallrye-fault-tolerance) for more details.
+Check the https://quarkus.io/guides/smallrye-fault-tolerance[Quarkus documentation] for more details.
 
 ## Observability
 In this section, we will explore how Quarkus can help you monitor and observe your AI services. First, check that the pom.xml file located in the triage-application directory contains the following dependencies:
 
-```xml
+[source, java]
+----
 <dependency>
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
@@ -331,10 +316,10 @@ In this section, we will explore how Quarkus can help you monitor and observe yo
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-opentelemetry</artifactId>
 </dependency>
-```
+----
 
-The first dependency is used to expose metrics using the Prometheus format. Quarkus metrics are based on [Micrometer](https://micrometer.io/).
-The second dependency is used to expose traces using the [OpenTelemetry](https://opentelemetry.io/) format.
+The first dependency is used to expose metrics using the Prometheus format. Quarkus metrics are based on https://micrometer.io/[Micrometer].
+The second dependency is used to expose traces using the https://opentelemetry.io/[OpenTelemetry] format.
 
 ### Metrics
 With the `quarkus-micrometer-registry-prometheus`, Quarkus will automatically expose metrics and traces for your application.
@@ -342,9 +327,10 @@ It also provides specific metrics for the AI service.
 For example, the number of requests, the number of errors, the response time, etc.
 
 Start the application and post a few reviews. 
-Then, open a browser and navigate to [http://localhost:8080/q/metrics](http://localhost:8080/q/metrics) to see the metrics:
+Then, open a browser and navigate to http://localhost:8080/q/metrics[http://localhost:8080/q/metrics] to see the metrics:
 
-```text
+[source, text]
+----
 # HELP langchain4j_aiservices_TriageService_triage_seconds
 # TYPE langchain4j_aiservices_TriageService_triage_seconds summary
 langchain4j_aiservices_TriageService_triage_seconds_count 2.0
@@ -352,14 +338,14 @@ langchain4j_aiservices_TriageService_triage_seconds_sum 4.992278791
 # HELP langchain4j_aiservices_TriageService_triage_seconds_max
 # TYPE langchain4j_aiservices_TriageService_triage_seconds_max gauge
 langchain4j_aiservices_TriageService_triage_seconds_max 2.706755083
-```
+----
 
 You can see that the triage method has been invoked twice and that the response time sum was _4.992278791_ seconds. 
 The max duration os the call was _2.706755083_ seconds.
 
 ### Tracing
 With the `quarkus-opentelemetry` extension, Quarkus will automatically expose traces for your application. 
-The Quarkus tracing support is based on [OpenTelemetry](https://opentelemetry.io/).
+The Quarkus tracing support is based on https://opentelemetry.io/[OpenTelemetry].
 
 Before seeing traces, we must start the OpenTelemetry collector and the Jaeger UI (to visualize the traces). 
 In a new terminal, navigate to the `triage-application` directory and run the following command:
@@ -369,7 +355,7 @@ $ docker compose -f observability-stack.yml up
 ```
 
 With the observability stack up, we can start submitting reviews for triage. 
-Then, open a browser and navigate to [http://localhost:16686](http://localhost:16686) to see the traces:
+Then, open a browser and navigate to http://localhost:16686[http://localhost:16686] to see the traces:
 
 1. Select the quarkus-llm-workshop-triage service
 2. Click on the _Find Traces_ button
@@ -380,18 +366,43 @@ If you click on one, you will see the details of the trace.
 Quarkus instruments the AI service and the application to provide a complete trace. 
 Under that trace, you will see the trace of the actual call to the model (`POST`):
 
-![Jaeger trace](../assets/trace.png)
+image::trace.png[caption="Jaeger trace"]
+
+## Using another model
+
+One of the great benefits of OpenShift AI is that it allows you to deploy multiple model.
+If you are using vLLM, all you need is to switch the link to the API.
+
+If you are a composit Caikit and TGIS, you should use the Quarkus Openshift AI extension.
+
+For the Openshift AI extension, use this 
+[source, xml]
+----
+<dependency>
+    <groupId>io.quarkiverse.langchain4j</groupId>
+    <artifactId>quarkus-langchain4j-openshift-ai</artifactId>
+    <version>${quarkus-langchain.version}</version>
+</dependency>
+----
+
+Open the `application.properties` use the OpenshiftAI properties instead of OpenAI ones.
+
+
+[source, properties]
+----
+quarkus.langchain4j.openshift-ai.base-url<Your_URL>
+quarkus.langchain4j.openshift-ai.chat-model.model-id=<your_model>
+quarkus.langchain4j.openshift-ai.timeout=60s
+
+## The deployed model is using a self-signed certificate, so we need to trust it.
+quarkus.tls.trust-all=true
+----
 
 ## Summary
 This concludes the first slot. 
-In this slot, we have seen how Quarkus can help you integrate OpenAI with your application.
+In this slot, we have seen how Quarkus can help you integrate a model deployed with Openshift AI with your application.
 Quarkus provides a declarative approach to integrate LLMs. 
 The interactions are modeled in a Java interface containing methods annotated with `@SystemMessage` and `@UserMessage`. 
 At build time, Quarkus generates the actual client code. 
 
 We have also discussed how fault tolerance, metrics, and tracing have been added.
-
-
-
-
-
