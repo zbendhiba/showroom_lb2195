@@ -1,4 +1,4 @@
-# Slot 3: Augmented Generation - Extending Hosted LLMs with Local Documents
+# Slot 2: Augmented Generation - Extending Hosted LLMs with Local Documents
 
 In this section, we will:
 
@@ -488,6 +488,6 @@ The vLLM models doesn't support for now exposing an Embedding Model in the servi
 
 ## Summary
 
-That concludes the third slot of the workshop and the workshop.
+That concludes the second slot and the workshop.
 We have seen how to use a local LLM (LLAMA2) to build a chat bot. We've seen how we can customize the same app to use a hosted LLM deployed on Openshift AI.
 We have also looked into the ingestion and RAG patterns to extend the LLM with local documents.

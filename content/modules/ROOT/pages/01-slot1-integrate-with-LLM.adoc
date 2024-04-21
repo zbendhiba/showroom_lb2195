@@ -1,4 +1,5 @@
-#Slot 2 : Unveiling the Potential - Integrating Openshift AI with Quarkus
+# Slot 1: Unveiling the Potential - Integrating Openshift AI with Quarkus
+
 
 In this first slot, we explore the potential of large language models like Mistral and how they integrate into Quarkus applications. 
 We walk through the process of integration, discussing the benefits and challenges of incorporating large language models into applications and explaining how Quarkus integration handles these challenges.
@@ -404,7 +405,7 @@ quarkus.tls.trust-all=true
 ----
 
 ## Summary
-This concludes the second slot. 
+This concludes the first slot. 
 In this slot, we have seen how Quarkus can help you integrate a model deployed with Openshift AI with your application.
 Quarkus provides a declarative approach to integrate LLMs. 
 The interactions are modeled in a Java interface containing methods annotated with `@SystemMessage` and `@UserMessage`. 

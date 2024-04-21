@@ -1,4 +1,4 @@
-= Slot 1: Deploying an LLM using OpenShift AI
+= Deploying an LLM using OpenShift AI
 
 Welcome to the third slot, where we delve into the process of deploying a Large Language Model (LLM) using https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai[OpenShift AI], Red Hat's MLOps platform running on top of OpenShift.
 
