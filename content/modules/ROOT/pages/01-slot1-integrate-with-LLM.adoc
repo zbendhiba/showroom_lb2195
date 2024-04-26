@@ -92,7 +92,7 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 public interface TriageService {
 
      @UserMessage("""
-            <s>[INST] <<SYS>>
+            <<SYS>>
             You are working for a bank. You are an AI processing reviews about financial products. You need to triage the reviews into positive and negative ones.
             You will always answer with a JSON document, and only this JSON document.
             <</SYS>>
@@ -113,7 +113,6 @@ public interface TriageService {
             ---
             {review}
             ---
-            [/INST]
             """)
     TriagedReview triage(String review);
 

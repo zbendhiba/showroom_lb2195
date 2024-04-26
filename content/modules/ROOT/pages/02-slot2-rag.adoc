@@ -10,44 +10,19 @@ image::rag.png[caption="Retrieval augmented generation with Quarkus"]
 We are going to build a chatbot that will use a pre-trained LLM (llama2) to generate responses.
 We will then extend the LLM with local documents to improve the quality of the responses.
 
-## Running LLAMA2 locally
+## Running llama3 locally
 
-In the previous slot, we used the OpenAI GPT model.
+In the previous slot, we used the Hosted Mistal AI model. The LLM model was deployed with vLLM, so the serving platform was exposing an OpenAI API. We used OpenAI langchain4j quarkus extension to integrate with the hosted Mistral model.
 The model is running remotely.
 It can become a security concern if you want to use the model for sensitive data, especially when using local documents to extend the knowledge of the LLM.
 Thus, here, we will run the model locally.
 
-If for any reason, you are not able to run the model locally, you can use a hosted LLAMA2 model.
-Jump to the link:#using-a-hosted-llama-2-model[Using a hosted LLama 2 model] section.
+If for any reason, you are not able to run the model locally, you can use the hosted Mistral model.
+Jump to the `Integrating with Hosted LLMs` section.
 
-### Installing LLAMA2
+### Installing llama3 locally
 
-If not already done, install LLAMA2 use https://ollama.ai/[ollama] following the instructions link:../appendixes/installing-ollama.md[discribed in the appendix].
-
-Once installed with Ollama up and running, you should have access to the `ollama` command line tool:
-
-[source, shell]
-----
-$ ollama --version
-ollama version is 0.1.17
-----
-
-Ollama can run multiple models, as you can see on https://ollama.ai/library[ollama's library].
-We will use the `llama2` model, which is a GPT-2 model trained on a large corpus of text.
-
-Pull the model using:
-
-[source, shell]
-----
-$ ollama pull llama2 
-----
-
-[.warning]
-====
-The https://ollama.ai/library/llama2[LLAMA2] model is quite large (> 3.8GB). Make sure you have enough disk space.
-====
-
-Once pulled, we will be able to use it.
+If not already done, install llama3. Use https://ollama.ai/[ollama] following the instructions link:appendixes/installing-ollama[discribed in the appendix].
 
 ### The Chat Application
 
@@ -56,7 +31,7 @@ Navigate to the `chat-application` directory to see the full source code of the 
 
 All the paths in the rest of this document are related to that directory.
 
-### Using LLAMA2
+### Using local llama3
 
 Open the `pom.xml` file and check that you have the following dependencies:
 
@@ -86,12 +61,12 @@ In the `src/main/resources/application.properties` file, we have the following c
 
 [source, properties]
 ----
-quarkus.langchain4j.ollama.chat-model.model-id=llama2
+quarkus.langchain4j.ollama.chat-model.model-id=llama3
 quarkus.langchain4j.ollama.timeout=60s
 ----
 
 The first property is used to specify the model to use.
-In our case, we will use the `llama2` model.
+In our case, we will use the `llama3` model.
 The second property configures the timeout for the model.
 
 [.tip]
@@ -153,12 +128,6 @@ This is required when used from a WebSocket.
 It contains a single method, `chat`, which is annotated with `@SystemMessage` and `@UserMessage`.
 The system message is wrapped into `<<SYS>>` and `<<\SYS>>`.
 This is a requirement from the LLAMA2 model.
-
-
-[NOTE]
-====
-The model authors using a seperate SystemMessage, so we can use the `@SystemMessage` annotation to integrate with this LLM
-====
 
 
 The user message is a template that will be used to generate the response.
@@ -472,13 +441,34 @@ To find the relevant chunks, the retriever computes the vector representation of
 
 You do not have to do anything about the attachment of the chunks to the user message; it is done automatically by the LLM extension.
 
-### Integrating with Hosted LLMs 
+
+## Integrating with local Mistral
+You can easily switch the type of local model. You can for instance use a local Mistral model.
+
+To do so, stop llama3 and run a Mistral local model.
+
+[source, shell]
+----
+$ ollama run mistral
+----
+
+Navigate to the `chat-application-local-mistral` directory to see the full source code of the application.
+
+Check the `application.properties` file. The model name has been updated to mistral.
+
+[source, properties]
+----
+quarkus.langchain4j.ollama.chat-model.model-id=mistral
+----
+
+
+## Integrating with Hosted LLMs 
 In order to execute the same code with the LLM hosted in Openshift AI, we can execute the same application tailored for Openshift AI.
 Navigate to the `chat-application-openshift-ai` directory to see the full source code of the application.
 
 Make sure you configure the URL of the LLM used in the triage application and start the application in dev mode.
 
-Check the `pm.xml`, `application.properties` and the `ChatService.java` classes have been updated. Notice:
+Check the `pom.xml`, `application.properties` and the `ChatService.java` classes have been updated. Notice:
 - The use the OpenAI quarkus dependency instead of Ollama quarkus dependency
 - The ChatService uses only `@UserMessage`dependency as the Mistral model doesn't allow using the `@SystemMessage`
 
