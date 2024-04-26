@@ -149,7 +149,7 @@ If you are using the Quarkus OpenAI extension or a model deployed with vLLM that
 Note that the triage method receives a String as a parameter (the user review). 
 The prompt can reference the parameter using the \{review} placeholder.
 
-[.tip]
+[TIP]
 ====
 Under the hood, Quarkus uses `qute` as a template engine.
 ====
