@@ -85,14 +85,15 @@ Firstly, ensure you have a 64-bit computer with admin rights (for installing nec
 This workshop will use the following software, tools, frameworks that you need to install and understand:
 
 * Any IDE you feel comfortable with (e.g., Intellij IDEA, Eclipse IDE, VS Code).
-* JDK {jdk-version} (see instructions in link:appendixes/installing-jdk[the appendix]).
-* Docker or Podman (see instructions in link:appendixes/installing-docker[the appendix]).
-* cURL (should be installed; if not, check link:appendixes/installing-curl[the appendix]).
+
+* JDK {jdk-version} (see instructions in link:appendixes/installing-jdk.html[the appendix]).
+* Docker or Podman (see instructions in link:appendixes/installing-docker.html[the appendix]).
+* cURL (should be installed; if not, check link:appendixes/installing-curl.html[the appendix]).
 We will also use Maven {mvn-version}, but there's no need to install it. The workshop scaffolding includes a maven wrapper, `mvnw`.
 
 [NOTE]
 ====
-This workshop assumes a bash shell. If you run on Windows, particularly, adjust the commands accordingly or install WSL. See link:appendixes/installing-wsl[the appendix for installation instructions].
+This workshop assumes a bash shell. If you run on Windows, particularly, adjust the commands accordingly or install WSL. See link:appendixes/installing-wsl.html[the appendix for installation instructions].
 ====
 
 ## Getting Started

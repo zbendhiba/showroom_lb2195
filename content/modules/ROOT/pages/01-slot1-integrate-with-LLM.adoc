@@ -35,8 +35,7 @@ The triage has been tailored for Mistral LLM functionalities.
 
 ## Using the OpenAI Quarkus integration
 
-To interact with a model running on OpenShift AI, we'll include a specific dependency in the `pom.xml` file located in `triage-application`.
-Our model has been deployed with vLLMfoonote:[Deploying an LLM using Openshift AI[01-slot1-install-openshift-ai.adoc]]. It exposes an OpenAI API. We are using the Quarkus OpenAI dependency to interact with the Mistral AI.
+To interact with the Mistral model running on OpenShift AI, we’ll include a specific dependency in the pom.xml file located in `triage-application`. Our model, deployed as vLLMfootnote:[Deploying an LLM using Openshift AI[01-slot1-install-openshift-ai.adoc]], exposes an OpenAI API. Therefore, we are using the Quarkus OpenAI dependency to interact with it.
 
 [source, xml]
 ----
@@ -49,7 +48,7 @@ Our model has been deployed with vLLMfoonote:[Deploying an LLM using Openshift A
 
 [NOTE]
 ====
-This dependency is specific to OpenAI and models depeloyed with vLLM. Quarkus can interact with many other LLMs.
+This dependency is specific to OpenAI and models deployed with vLLM. Quarkus can interact with many other LLMs.
 ====
 
 It will allow Quarkus LangChain4J to interact with the model serving platform and its API.
@@ -63,7 +62,7 @@ The `quarkus.tls.trust-all=true` property is included to bypass certificate vali
 
 [source, xml]
 ----
-$ export MISTRAL_AI_BASE_URL=<your Mistral AI Base URL deployed on Openshift AI>
+$ export MISTRAL_AI_BASE_URL={llm-base-url}
 $ ./mvnw quarkus:dev
 ----
 
@@ -136,11 +135,14 @@ The system message is wrapped into `<<SYS>>` and `<<\SYS>>`. It contains the sco
 
 [NOTE]
 ====
-The `@SystemMessage` and `@UserMessage` annotations define the messages (prompt) sent to the AI service. 
+The `@SystemMessage` and `@UserMessage` annotations define the messages (prompt) sent to the AI service.
+
 `@SystemMessage` defines the scope, context, and goal of the AI service. 
+
 `@UserMessage` defines the message sent to the AI service.
 
 Mistral AI doesn't support the notion of SystemMessage, our prompt is adapted to the Mistral model.
+
 If you are using the Quarkus OpenAI extension or a model deployed with vLLM that supports the notion of SystemMessage you would use the `@SystemMessage` to define the context.
 ====
 
@@ -213,9 +215,9 @@ In the `application.properties` file, you will see the following:
 ----
 quarkus.langchain4j.openai.timeout=60s
 
-#quarkus.langchain4j.openai.base-url=<Mistral-ai-base-url>
+quarkus.langchain4j.openai.base-url={llm-base-url}
 quarkus.langchain4j.openai.api-key=<key>
-quarkus.langchain4j.openai.chat-model.model-name=<model_name>
+quarkus.langchain4j.openai.chat-model.model-name={model-name}
 ----
 
 [NOTE]
@@ -230,7 +232,7 @@ However, feel free to adapt.
 
 The last three properties configure the access to the vLLM service.
 
-[.tip]
+[NOTE]
 ====
 If you want to visualise the request that is sent to the model and its response, you cam increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
 
@@ -289,9 +291,6 @@ The `@Fallback` annotation is used to define a fallback method that will be invo
 
 The `@RateLimit` annotation is used to limit the number of requests sent to the AI service.
 In this case, we will limit the number of requests to 2 per 10 seconds.
-Indeed, calling a AI service might be expensive.
-Also, for the workshop, the Azure OpenAI service has also a rate limit, thus we need to limit the number of requests.
-When the limit is reached, the fallback method is called.
 
 Thus,  let's implement the `fallback` method:
 
@@ -377,10 +376,9 @@ image::trace.png[caption="Jaeger trace"]
 
 ## Using another model
 
-One of the great benefits of OpenShift AI is that it allows you to deploy multiple model.
-If you are using vLLM, all you need is to switch the link to the API.
+One of the great benefits of OpenShift AI is that it allows you to deploy multiple models. If you are using vLLM, all you need to do is switch the link to another model.
 
-If you are a composit Caikit and TGIS, you should use the Quarkus Openshift AI extension.
+If you are using a composite Caikit and TGIS, you should use the Quarkus OpenShift AI extension.
 
 For the Openshift AI extension, use this 
 [source, xml]

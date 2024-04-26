@@ -9,7 +9,7 @@ To install the JDK {jdk-version}, follows the instructions from https://adoptium
 
 ### For Mac OS X
 
-There is also an easier way to download and install Java if you are on Mac OS X: using SDKMAN! (https://sdkman.io[SDKMAN!]) is a tool for managing parallel versions of multiple Software Development Kits (SDK) on most Unix-based systems. It provides a convenient Command Line Interface (CLI) and API for installing, switching, removing, and listing _Candidates_. Developers often need to manage parallel versions of different builds of SDKs in their environment and switch from one to another. Manually setting the `PATH` variable can become quickly painful. That's when SDKMAN! can help you.
+There is also an easier way to download and install Java if you are on Mac OS X: using SDKMAN! https://sdkman.io[SDKMAN!] is a tool for managing parallel versions of multiple Software Development Kits (SDK) on most Unix-based systems. It provides a convenient Command Line Interface (CLI) and API for installing, switching, removing, and listing _Candidates_. Developers often need to manage parallel versions of different builds of SDKs in their environment and switch from one to another. Manually setting the `PATH` variable can become quickly painful. That's when SDKMAN! can help you.
 
 #### Installing SDKMAN!
 

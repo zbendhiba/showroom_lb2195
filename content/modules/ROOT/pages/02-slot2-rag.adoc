@@ -7,29 +7,26 @@ In this section, we will:
 
 image::rag.png[caption="Retrieval augmented generation with Quarkus"]
 
-We are going to build a chatbot that will use a pre-trained LLM (llama2) to generate responses.
+We are going to build a chatbot that will use a pre-trained LLM (llama3) to generate responses.
 We will then extend the LLM with local documents to improve the quality of the responses.
 
 ## Running llama3 locally
 
-In the previous slot, we used the Hosted Mistal AI model. The LLM model was deployed with vLLM, so the serving platform was exposing an OpenAI API. We used OpenAI langchain4j quarkus extension to integrate with the hosted Mistral model.
-The model is running remotely.
-It can become a security concern if you want to use the model for sensitive data, especially when using local documents to extend the knowledge of the LLM.
-Thus, here, we will run the model locally.
+In the previous slot, we used the hosted Mistral AI model. This LLM model was deployed with vLLM, and the serving platform exposed an OpenAI API. We utilized the OpenAI langchain4j Quarkus extension to integrate with the hosted Mistral model. The model is running remotely. 
+
+In this example, we will learn how to use Quarkus to integrate with local LLMs and local documents. We will demonstrate how easy it is to start developing smart Quarkus applications hosted on the developer's machine.
 
 If for any reason, you are not able to run the model locally, you can use the hosted Mistral model.
 Jump to the `Integrating with Hosted LLMs` section.
 
 ### Installing llama3 locally
 
-If not already done, install llama3. Use https://ollama.ai/[ollama] following the instructions link:appendixes/installing-ollama[discribed in the appendix].
+If not already done, install llama3. Use https://ollama.ai/[ollama] following the instructions link:appendixes/installing-ollama.html[discribed in the appendix].
 
 ### The Chat Application
 
 As mentioned above, we will build a chatbot.
 Navigate to the `chat-application` directory to see the full source code of the application.
-
-All the paths in the rest of this document are related to that directory.
 
 ### Using local llama3
 
@@ -69,9 +66,9 @@ The first property is used to specify the model to use.
 In our case, we will use the `llama3` model.
 The second property configures the timeout for the model.
 
-[.tip]
+[NOTE]
 ====
-If you want to visualise the request that is sent to the model and its response, you cam increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
+If you want to visualise the request that is sent to the model and its response, you can increase the log level by adding the following properties to the `src/main/resources/application.properties` file:
 
 [source, properties]
 ----
@@ -126,12 +123,12 @@ The `@Singleton` annotation is used to indicate that the service is a singleton.
 This is required when used from a WebSocket.
 
 It contains a single method, `chat`, which is annotated with `@SystemMessage` and `@UserMessage`.
-The system message is wrapped into `<<SYS>>` and `<<\SYS>>`.
-This is a requirement from the LLAMA2 model.
+The system message is wrapped into `pass:[<<SYS>>]` and `pass:[<<\SYS>>]`.
+This is a requirement from the LLAMA3 model.
 
 
 The user message is a template that will be used to generate the response.
-The `+++` and `+++` are used to delimit the message from the user.
+The `pass:[+++]` and `pass:[+++]` are used to delimit the message from the user.
 Also note the `{message}` placeholder.
 It is replaced with the user message received as a parameter.
 
@@ -179,16 +176,21 @@ public class ChatMemoryBean implements ChatMemoryProvider {
 }
 ----
 
-[.info]
+[NOTE]
 ====
 Because we have a single `ChatMemoryProvider`, we do not have to configure anything.
+
 When you have multiple ones, you can configure the one to use with the `chatMemoryProvider` attribute of the `@RegisterAiService` annotation.
 ====
 
 For each _memory id_, we create and retrieve a `ChatMemory` object.
+
 This object is used to store the context of the conversation for that specific _memory id_.
+
 In the code above, we only store 20 messages.
+
 Note that the bigger this context, the slower the response time.
+
 Even 20 can be too much.
 
 The `clear` method is used to remove the memory when the WebSocket connection is closed.
@@ -243,7 +245,7 @@ public class ChatBotWebSocket {
 It is annotated with `@ServerEndpoint` to indicate that it is a WebSocket endpoint.
 The endpoint is available at the `/chatbot` path, so you can connect to the WebSocket using `ws://localhost:8080/chatbot`.
 
-[.tip]
+[TIP]
 ====
 You can check if the port 8080 is already used by another process with the command `lsof -i tcp:8080`.
 ====
@@ -255,7 +257,7 @@ It is used to remove the memory associated with the session.
 The `onMessage` method is called when a message is received.
 It uses the `ChatService` to generate the response and sends it back to the client.
 
-[.bug]
+[CAUTION]
 ====
 Due to a Quarkus WebSocket limitation, we need to use `Infrastructure.getDefaultExecutor().execute` to execute the code in a different thread; otherwise, the WebSocket connection will block the event loop.
 ====
@@ -310,7 +312,7 @@ The `pom.xml` file contains the following dependency:
 </dependency>
 ----
 
-[.info]
+[INFO]
 ====
 Quarkus also supports other vector databases: Chroma, PostgreSQL, Milvius, Qdrant, Pinecone, Redis, and the list keeps growing.
 ====
@@ -358,7 +360,7 @@ Then, it uses the `EmbeddingStoreIngestor` to ingest the documents into the vect
 The ingestor computes the embedding but also splits the document into smaller chunks.
 This is required to improve the performance (and reduce the size of the relevant data attached to the user request) of the retrieval process.
 
-[.tip]
+[TIP]
 ====
 You do not have to use the embedding model provided by the LLM extension.
 You can also use a local model. It is recommended to use a local model when using a remote LLM to avoid having to send the full content to the remote LLM.
@@ -426,7 +428,7 @@ $ ollama run mistral
 
 Navigate to the `chat-application-local-mistral` directory to see the full source code of the application.
 
-Check the `application.properties` file. The model name has been updated to mistral.
+Note that  model name has been updated to mistral in the `application.properties` file.
 
 [source, properties]
 ----
@@ -452,5 +454,7 @@ The vLLM models doesn't support for now exposing an Embedding Model in the servi
 ## Summary
 
 That concludes the second slot and the workshop.
-We have seen how to use a local LLM (LLAMA2) to build a chat bot. We've seen how we can customize the same app to use a hosted LLM deployed on Openshift AI.
+
+We have seen how to use a local LLMs to build a chat bot. We've seen how we can customize the same app to use a hosted LLM deployed on Openshift AI.
+
 We have also looked into the ingestion and RAG patterns to extend the LLM with local documents.
