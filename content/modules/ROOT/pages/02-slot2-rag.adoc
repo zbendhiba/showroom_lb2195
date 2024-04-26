@@ -298,54 +298,36 @@ To the ingestion consists of reading documents and computing a vector representa
 This representation is called an _embedding_.
 Then, the vector and the document are stored into the vector database.
 
-In this application, we use Redis as a vector database.
+In this application, we use Infinispan as a vector database.
 The `pom.xml` file contains the following dependency:
 
 [source, xml]
 ----
 <dependency>
     <groupId>io.quarkiverse.langchain4j</groupId>
-    <artifactId>quarkus-langchain4j-redis</artifactId>
+    <artifactId>quarkus-langchain4j-infinispan</artifactId>
     <version>${quarkus-langchain.version}</version>
 </dependency>
 ----
 
 [.info]
 ====
-Quarkus also supports Chroma and PostgreSQL as a vector database.
+Quarkus also supports other vector databases: Chroma, PostgreSQL, Milvius, Qdrant, Pinecone, Redis, and the list keeps growing.
 ====
 
 The ingestion process is implemented in the `DocumentIngestor` class:
 
 [source, java]
 ----
-package io.quarkiverse.langchain4j.workshop.chat;
-
-import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
-import dev.langchain4j.data.document.parser.TextDocumentParser;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
-import io.quarkus.runtime.StartupEvent;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
-import java.io.File;
-import java.util.List;
-
-import static dev.langchain4j.data.document.splitter.DocumentSplitters.recursive;
-
 @ApplicationScoped
 public class DocumentIngestor {
 
     /**
      * The embedding store (the database).
-     * The bean is provided by the quarkus-langchain4j-redis extension.
+     * The bean is provided by the quarkus-langchain4j-infinispan extension.
      */
     @Inject
-    RedisEmbeddingStore store;
+    InfinispanEmbeddingStore store;
 
     /**
      * The embedding model (how the vector of a document is computed).
@@ -393,23 +375,13 @@ The RAG pattern is implemented in the `DocumentRetriever` class:
 
 [source, java]
 ----
-package io.quarkiverse.langchain4j.workshop.chat;
-
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.retriever.EmbeddingStoreRetriever;
-import dev.langchain4j.retriever.Retriever;
-import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
-import jakarta.enterprise.context.ApplicationScoped;
-
-import java.util.List;
 
 @ApplicationScoped
 public class DocumentRetriever implements Supplier<RetrievalAugmentor> {
 
     private final RetrievalAugmentor augmentor;
 
-    DocumentRetriever(RedisEmbeddingStore store, EmbeddingModel model) {
+    DocumentRetriever(InfinispanEmbeddingStore store, AllMiniLmL6V2EmbeddingModel model) {
         EmbeddingStoreContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
             .embeddingModel(model)
             .embeddingStore(store)
